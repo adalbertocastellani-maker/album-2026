@@ -1,42 +1,47 @@
 import streamlit as st
+import re
 
-# Configuración móvil
+# Configuración móvil con estilo oscuro/deportivo
 st.set_page_config(page_title="Álbum Mundial 2026", page_icon="⚽", layout="centered")
 
-st.title("⚽ Mi Álbum Interactivo")
-st.write("¡Agregá figuritas nuevas y registrá lo que vas pegando en el momento!")
+# Estilo visual personalizado
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; }
+    div.stButton > button:first-child {
+        background-color: #107c41; color: white; border-radius: 8px; font-weight: bold; width: 100%;
+    }
+    div.stButton > button:last-child {
+        border-radius: 8px; font-weight: bold; width: 100%;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# 1. BASE DE DATOS INICIAL
+st.title("⚽ Mi Álbum Interactivo 2026")
+
+# 1. BASE DE DATOS INICIAL CON EMÓJIS
 @st.cache_data
 def inicializar_datos():
-    paginas = {
-        "Coca-Cola": ["CC7", "CC10", "CC11", "CC12", "CC13"],
-        "FIFA History": ["FWC13", "FWC19"],
-        "ALG": [f"ALG{i}" for i in range(1, 21)], "ARG": [f"ARG{i}" for i in range(1, 21)],
-        "AUS": [f"AUS{i}" for i in range(1, 21)], "AUT": [f"AUT{i}" for i in range(1, 21)],
-        "BHN": [f"BHN{i}" for i in range(1, 21)], "BIH": [f"BIH{i}" for i in range(1, 21)],
-        "BRA": [f"BRA{i}" for i in range(1, 21)], "CAN": [f"CAN{i}" for i in range(1, 21)],
-        "CIV": [f"CIV{i}" for i in range(1, 21)], "COD": [f"COD{i}" for i in range(1, 21)],
-        "COL": [f"COL{i}" for i in range(1, 21)], "CRO": [f"CRO{i}" for i in range(1, 21)],
-        "CUW": [f"CUW{i}" for i in range(1, 21)], "CZE": [f"CZE{i}" for i in range(1, 21)],
-        "EGY": [f"EGY{i}" for i in range(1, 21)], "ENG": [f"ENG{i}" for i in range(1, 21)],
-        "ESP": [f"ESP{i}" for i in range(1, 21)], "FIN": [f"FIN{i}" for i in range(1, 21)],
-        "FRA": [f"FRA{i}" for i in range(1, 21)], "FWC": [f"FWC{i}" for i in range(1, 21)],
-        "GHA": [f"GHA{i}" for i in range(1, 21)], "GPV": [f"GPV{i}" for i in range(1, 21)],
-        "HAI": [f"HAI{i}" for i in range(1, 21)], "IRQ": [f"IRQ{i}" for i in range(1, 21)],
-        "JOR": [f"JOR{i}" for i in range(1, 21)], "JPN": [f"JPN{i}" for i in range(1, 21)],
-        "KOR": [f"KOR{i}" for i in range(1, 21)], "MAR": [f"MAR{i}" for i in range(1, 21)],
-        "MEX": [f"MEX{i}" for i in range(1, 21)], "NED": [f"NED{i}" for i in range(1, 21)],
-        "NOR": [f"NOR{i}" for i in range(1, 21)], "NZL": [f"NZL{i}" for i in range(1, 21)],
-        "PAN": [f"PAN{i}" for i in range(1, 21)], "PAR": [f"PAR{i}" for i in range(1, 21)],
-        "POR": [f"POR{i}" for i in range(1, 21)], "QAT": [f"QAT{i}" for i in range(1, 21)],
-        "RSA": [f"RSA{i}" for i in range(1, 21)], "SCO": [f"SCO{i}" for i in range(1, 21)],
-        "SEN": [f"SEN{i}" for i in range(1, 21)], "SUI": [f"SUI{i}" for i in range(1, 21)],
-        "SWE": [f"SWE{i}" for i in range(1, 21)], "TUN": [f"TUN{i}" for i in range(1, 21)],
-        "TUR": [f"TUR{i}" for i in range(1, 21)], "USA": [f"USA{i}" for i in range(1, 21)],
-        "UZB": [f"UZB{i}" for i in range(1, 21)],
+    nombres_paises = {
+        "Coca-Cola": "🥤 Coca-Cola", "FIFA History": "📜 FIFA History",
+        "ALG": "🇩🇿 ALG (Argelia)", "ARG": "🇦🇷 ARG (Argentina)", "AUS": "🇦🇺 AUS (Australia)", "AUT": "🇦🇹 AUT (Austria)",
+        "BHN": "🇧🇭 BHN (Bahréin)", "BIH": "🇧🇦 BIH (Bosnia)", "BRA": "🇧🇷 BRA (Brasil)", "CAN": "🇨🇦 CAN (Canadá)",
+        "CIV": "🇨🇮 CIV (Costa de Marfil)", "COD": "🇨🇩 COD (Congo DR)", "COL": "🇨🇴 COL (Colombia)", "CRO": "🇭🇷 CRO (Croacia)",
+        "CUW": "🇨🇼 CUW (Curazao)", "CZE": "🇨🇿 CZE (Rep. Checa)", "EGY": "🇪🇬 EGY (Egipto)", "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 ENG (Inglaterra)",
+        "ESP": "🇪🇸 ESP (España)", "FIN": "🇫🇮 FIN (Finlandia)", "FRA": "🇫🇷 FRA (Francia)", "FWC": "🏆 FWC (Especiales)",
+        "GHA": "🇬🇭 GHA (Ghana)", "GPV": "🇨🇻 GPV (Guadalupe)", "HAI": "🇭🇹 HAI (Haití)", "IRQ": "🇮🇶 IRQ (Irak)",
+        "JOR": "🇯🇴 JOR (Jordania)", "JPN": "🇯🇵 JPN (Japón)", "KOR": "🇰🇷 KOR (Corea del Sur)", "MAR": "🇲🇦 MAR (Marruecos)",
+        "MEX": "🇲🇽 MEX (México)", "NED": "🇳🇱 NED (Países Bajos)", "NOR": "🇳🇴 NOR (Noruega)", "NZL": "🇳🇿 NZL (Nueva Zelanda)",
+        "PAN": "🇵🇦 PAN (Panamá)", "PAR": "🇵🇾 PAR (Paraguay)", "POR": "🇵🇹 POR (Portugal)", "QAT": "🇶🇦 QAT (Catar)",
+        "RSA": "🇿🇦 RSA (Sudáfrica)", "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 SCO (Escocia)", "SEN": "🇸🇳 SEN (Senegal)", "SUI": "🇨🇭 SUI (Suiza)",
+        "SWE": "🇸🇪 SWE (Suecia)", "TUN": "🇹🇳 TUN (Túnez)", "TUR": "🇹🇷 TUR (Turquía)", "USA": "🇺🇸 USA (EE.UU.)",
+        "UZB": "🇺🇿 UZB (Uzbekistán)"
     }
     
+    paginas = {p: [f"CC{i}" if p=="Coca-Cola" else f"FWC{i}" if p=="FIFA History" else f"{p}{i}" for i in range(1, 21)] for p in nombres_paises.keys()}
+    paginas["Coca-Cola"] = ["CC7", "CC10", "CC11", "CC12", "CC13"]
+    paginas["FIFA History"] = ["FWC13", "FWC19"]
+
     faltantes = {
         "Coca-Cola": ["CC7", "CC10", "CC11", "CC12", "CC13"], "FIFA History": ["FWC13", "FWC19"],
         "PAN": ["PAN1", "PAN2", "PAN3", "PAN6", "PAN7", "PAN9", "PAN15", "PAN19"],
@@ -95,23 +100,39 @@ def inicializar_datos():
         "SWE": {"6": 1, "12": 1, "17": 1}, "TUN": {"10": 2, "14": 1}, "TUR": {"3": 1, "5": 1, "16": 1}, 
         "USA": {"3": 1, "4": 1, "7": 1, "11": 1, "12": 2, "17": 1}, "UZB": {"3": 1, "9": 1, "15": 1, "19": 1}
     }
-    return paginas, faltantes, repetidas
+    return paginas, faltantes, repetidas, nombres_paises
 
-paginas, f_ini, r_ini = inicializar_datos()
+paginas, f_ini, r_ini, nombres_paises = inicializar_datos()
 
 if "faltantes" not in st.session_state:
     st.session_state.faltantes = f_ini
 if "repetidas" not in st.session_state:
     st.session_state.repetidas = r_ini
 
-# 2. PESTAÑAS PRINCIPALES
-tab1, tab2, tab3, tab4 = st.tabs(["🔍 Buscador", "➕ Cargar Nuevas", "📋 Faltantes", "🔄 Repetidas"])
+# 2. SECCIÓN DE ESTADÍSTICAS Y BARRA DE PROGRESO
+total_figus_album = sum(len(v) for v in paginas.values())
+total_faltantes = sum(len(v) for v in st.session_state.faltantes.values())
+total_pegadas = total_figus_album - total_faltantes
+porcentaje = (total_pegadas / total_figus_album)
+
+st.markdown(f"### 📈 ¡Llevamos completado el **{porcentaje:.1%}** del álbum!")
+st.progress(porcentaje)
+
+met1, met2 = st.columns(2)
+with met1:
+    st.metric("📌 Pegadas en el Álbum", f"{total_pegadas} / {total_figus_album}")
+with met2:
+    st.metric("🔍 Aún nos Faltan", total_faltantes)
+
+st.write("---")
+
+# 3. PESTAÑAS PRINCIPALES
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🔍 Buscador", "➕ Cargar 1 a 1", "🚀 Carga por Bloque", "📋 Faltantes", "🔄 Repetidas"])
 
 with tab1:
-    st.subheader("Consultar Figu")
-    busqueda = st.text_input("Ingresá el código entero (Ej: ARG13):").strip().upper()
+    st.subheader("Consultar Figurita")
+    busqueda = st.text_input("Ingresá el código entero (Ej: ARG13 o CC7):").strip().upper()
     if busqueda:
-        import re
         m = re.match(r"([A-ZáéíóúÁÉÍÓÚ\s\-]+)(\d+)", busqueda)
         if m:
             p, n = m.groups()
@@ -120,67 +141,126 @@ with tab1:
             
             if p in paginas:
                 if busqueda in st.session_state.faltantes.get(p, []):
-                    st.error(f"🚨 ¡FALTA! La {busqueda} se necesita en el álbum.")
+                    st.error(f"🚨 ¡¡NOS FALTA!! La figurita {busqueda} se necesita en el álbum.")
                 else:
                     cant = st.session_state.repetidas.get(p, {}).get(n, 0)
-                    st.success(f"✅ YA ESTÁ PEGADA. (Repetidas disponibles: {cant})")
+                    st.success(f"✅ YA ESTÁ PEGADA. (Tienes {cant} repetidas en el mazo)")
             else:
-                st.warning("Esa selección no existe.")
+                st.warning("Esa selección no está registrada.")
         else:
-            st.warning("Escribí letras y números juntos (Ej: USA4).")
+            st.warning("Poné las letras y los números juntos (Ej: MEX17).")
 
 with tab2:
-    st.subheader("¡Sumar figuritas nuevas!")
+    st.subheader("Cargar Figus Manual")
     col1, col2 = st.columns(2)
     with col1:
-        pais_n = st.selectbox("Selección:", list(paginas.keys()))
+        seleccion_label = st.selectbox("Elegí el País/Sección:", list(nombres_paises.values()))
+        pais_n = [k for k, v in nombres_paises.items() if v == seleccion_label][0]
     with col2:
-        # Extraer solo el número para el casillero visual
         num_n = st.number_input("Número de figu:", min_value=1, max_value=20, value=1)
     
-    # Crear código exacto
     if pais_n == "Coca-Cola": code_n = f"CC{num_n}"
     elif pais_n == "FIFA History": code_n = f"FWC{num_n}"
     else: code_n = f"{pais_n}{num_n}"
     
-    st.write(f"Seleccionaste la figurita: **{code_n}**")
+    st.write(f"Figurita seleccionada: **{nombres_paises[pais_n]} — Número {num_n}**")
     
     btn_pegar, btn_repe = st.columns(2)
-    
     with btn_pegar:
-        if st.button("📌 ¡La pegamos en el álbum!"):
+        if st.button("📌 ¡La pegamos en el álbum!", key="pegar_manual"):
             if code_n in st.session_state.faltantes.get(pais_n, []):
                 st.session_state.faltantes[pais_n].remove(code_n)
-                st.toast(f"¡Buenísimo! {code_n} registrada como pegada.", icon="🎉")
+                st.success(f"¡Buenísimo! {code_n} guardada en el álbum.")
+                st.rerun()
             else:
-                st.toast(f"Esa ya estaba pegada, ¡pero gracias por chequear!", icon="👀")
+                st.info("Esa figurita ya figuraba como pegada.")
                 
     with btn_repe:
-        if st.button("🔄 Guardar como repetida"):
+        if st.button("🔄 Guardar en las Repetidas", key="repe_manual"):
             str_num = str(num_n)
             if pais_n not in st.session_state.repetidas:
                 st.session_state.repetidas[pais_n] = {}
             st.session_state.repetidas[pais_n][str_num] = st.session_state.repetidas[pais_n].get(str_num, 0) + 1
-            st.toast(f"¡Agregada {code_n} a la pila de cambios!", icon="🔄")
+            st.toast(f"¡Agregada {code_n} al mazo de cambios!", icon="🔄")
 
 with tab3:
-    st.subheader("Lista de Faltantes")
-    pais_f = st.selectbox("Elegí el país:", list(paginas.keys()), key="p_f")
-    lista_f = st.session_state.faltantes.get(pais_f, [])
-    if lista_f:
-        st.write(f"Faltan **{len(lista_f)}** figuritas:")
-        st.code(", ".join(lista_f))
-    else:
-        st.success("¡Página llena! 🏆")
+    st.subheader("🚀 Carga Masiva (Pegar texto de WhatsApp)")
+    st.write("Pegá la lista de códigos separados por comas, espacios o líneas enteras:")
+    texto_bloque = st.text_area("Ejemplo: ARG13, BRA2, MEX5", height=150)
+    
+    tipo_carga = r_button = st.radio("¿Qué querés hacer con estas figuritas?", ["Marcar todas como PEGADAS", "Sumar todas a las REPETIDAS"])
+    
+    if st.button("⚡ Procesar Todo el Bloque"):
+        if texto_bloque:
+            # Buscar todos los códigos válidos en el texto pegado
+            figus_encontradas = re.findall(r"\b([A-ZáéíóúÁÉÍÓÚ\s\-]+)(\d+)\b", texto_bloque.upper())
+            
+            exito_count = 0
+            for p, n in figus_encontradas:
+                p = p.strip()
+                if "COCA" in p: p = "Coca-Cola"
+                if "HISTORY" in p: p = "FIFA History"
+                
+                if p in paginas:
+                    if p == "Coca-Cola": full_code = f"CC{n}"
+                    elif p == "FIFA History": full_code = f"FWC{n}"
+                    else: full_code = f"{p}{n}"
+                    
+                    if "PEGADAS" in tipo_carga:
+                        if full_code in st.session_state.faltantes.get(p, []):
+                            st.session_state.faltantes[p].remove(full_code)
+                            exito_count += 1
+                    else:
+                        if p not in st.session_state.repetidas:
+                            st.session_state.repetidas[p] = {}
+                        st.session_state.repetidas[p][n] = st.session_state.repetidas[p].get(n, 0) + 1
+                        exito_count += 1
+            
+            if exito_count > 0:
+                st.success(f"¡Espectacular! Se procesaron con éxito **{exito_count}** figuritas juntas.")
+                st.rerun()
+            else:
+                st.warning("No se encontraron códigos nuevos válidos en el texto pegado.")
+        else:
+            st.warning("Por favor, pegá algún texto antes de presionar el botón.")
 
 with tab4:
-    st.subheader("Tus Repetidas")
-    pais_r = st.selectbox("Elegí el país:", list(paginas.keys()), key="p_r")
+    st.subheader("Baches del Álbum")
+    label_f = st.selectbox("Filtrar Faltantes por País:", list(nombres_paises.values()), key="p_f")
+    pais_f = [k for k, v in nombres_paises.items() if v == label_f][0]
+    
+    lista_f = st.session_state.faltantes.get(pais_f, [])
+    if lista_f:
+        st.write(f"Te faltan **{len(lista_f)}** figuritas en esta sección:")
+        st.code(", ".join(lista_f))
+    else:
+        st.success("¡Página 100% LLENA! 🏆")
+
+with tab5:
+    st.subheader("Mazo de Repetidas")
+    
+    texto_repes = "⚽ REPETIDAS PARA CAMBIAR:\n"
+    hay_repes = False
+    for p_key, p_name in nombres_paises.items():
+        dict_r = st.session_state.repetidas.get(p_key, {})
+        activas = {k: v for k, v in dict_r.items() if v > 0}
+        if activas:
+            hay_repes = True
+            repes_str = ", ".join([f"{p_key} {num}" + (f" (x{c})" if c>1 else "") for num, c in activas.items()])
+            texto_repes += f"• {p_name}: {repes_str}\n"
+            
+    if hay_repes:
+        st.copy_button("📋 Copiar Repetidas para WhatsApp", texto_repes)
+        st.write("---")
+    
+    label_r = st.selectbox("Ver Repetidas de:", list(nombres_paises.values()), key="p_r")
+    pais_r = [k for k, v in nombres_paises.items() if v == label_r][0]
+    
     dict_r = st.session_state.repetidas.get(pais_r, {})
     repes_activas = {k: v for k, v in dict_r.items() if v > 0}
     
     if repes_activas:
         for num, cant in repes_activas.items():
-            st.write(f"• **{pais_r} {num}** — Cantidad: {cant}")
+            st.write(f"• **{pais_r} {num}** — Cantidad en mazo: **{cant}**")
     else:
-        st.write("Sin repetidas por acá.")
+        st.write("Sin repetidas de este país por acá.")
