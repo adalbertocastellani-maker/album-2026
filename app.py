@@ -184,17 +184,24 @@ with tab2:
             st.toast(f"¡Agregada {code_n} al mazo de cambios!", icon="🔄")
 
 with tab3:
-    st.subheader("🚀 Carga Masiva (Pegar texto de WhatsApp)")
-    st.write("Pegá la lista de códigos separados por comas, espacios o líneas enteras:")
-    texto_bloque = st.text_area("Ejemplo: ARG13, BRA2, MEX5", height=150)
+    st.subheader("🚀 Carga o Consulta Masiva")
+    st.write("Pegá el texto completo que te mandaron por WhatsApp:")
+    texto_bloque = st.text_area("Códigos separados por espacios, comas o renglones:", height=120)
     
-    tipo_carga = st.radio("¿Qué querés hacer con estas figuritas?", ["Marcar todas como PEGADAS", "Sumar todas a las REPETIDAS"])
+    tipo_carga = st.radio("¿Qué querés hacer con esta lista?", [
+        "🔎 Solo CONSULTAR cuáles de estas nos sirven (No modifica nada)",
+        "📌 Marcar todas como PEGADAS en el álbum", 
+        "🔄 Sumar todas a la pila de REPETIDAS"
+    ])
     
-    if st.button("⚡ Procesar Todo el Bloque"):
+    if st.button("⚡ Procesar Bloque"):
         if texto_bloque:
             figus_encontradas = re.findall(r"\b([A-ZáéíóúÁÉÍÓÚ\s\-]+)(\d+)\b", texto_bloque.upper())
             
+            servir = []
+            ya_estan = []
             exito_count = 0
+            
             for p, n in figus_encontradas:
                 p = p.strip()
                 if "COCA" in p: p = "Coca-Cola"
@@ -205,7 +212,12 @@ with tab3:
                     elif p == "FIFA History": full_code = f"FWC{n}"
                     else: full_code = f"{p}{n}"
                     
-                    if "PEGADAS" in tipo_carga:
+                    if "CONSULTAR" in tipo_carga:
+                        if full_code in st.session_state.faltantes.get(p, []):
+                            if full_code not in servir: servir.append(full_code)
+                        else:
+                            if full_code not in ya_estan: ya_estan.append(full_code)
+                    elif "PEGADAS" in tipo_carga:
                         if full_code in st.session_state.faltantes.get(p, []):
                             st.session_state.faltantes[p].remove(full_code)
                             exito_count += 1
@@ -215,13 +227,27 @@ with tab3:
                         st.session_state.repetidas[p][n] = st.session_state.repetidas[p].get(n, 0) + 1
                         exito_count += 1
             
-            if exito_count > 0:
-                st.success(f"¡Espectacular! Se procesaron con éxito **{exito_count}** figuritas juntas.")
-                st.rerun()
+            # Mostrar resultados según la opción elegida
+            if "CONSULTAR" in tipo_carga:
+                st.write("---")
+                if servir:
+                    st.error(f"🚨 **¡¡SÍ, NOS SIRVEN ESTAS ({len(servir)})!!** Van directo al álbum:")
+                    st.code(", ".join(servir))
+                else:
+                    st.success("❌ De esa lista **no nos sirve ninguna**, las tenemos todas pegadas.")
+                
+                if ya_estan:
+                    st.info(f"✅ Esas ya las tenemos pegadas ({len(ya_estan)}):")
+                    st.caption(", ".join(ya_estan))
+                    
             else:
-                st.warning("No se encontraron códigos nuevos válidos en el texto pegado.")
+                if exito_count > 0:
+                    st.success(f"¡Espectacular! Se procesaron con éxito **{exito_count}** figuritas.")
+                    st.rerun()
+                else:
+                    st.warning("No se encontraron códigos nuevos para procesar.")
         else:
-            st.warning("Por favor, pegá algún texto antes de presionar el botón.")
+            st.warning("Por favor, pegá el texto antes de procesar.")
 
 with tab4:
     st.subheader("Baches del Álbum")
@@ -249,9 +275,7 @@ with tab5:
             texto_repes += f"• {p_name}: {repes_str}\n"
             
     if hay_repes:
-        # Reemplazado por un visor de texto nativo más seguro para evitar errores de versión
         st.text_area("📋 Lista lista para copiar y mandar a WhatsApp:", value=texto_repes, height=200)
-        st.write("👆 Mantené presionado el texto de arriba en el celu para seleccionarlo y copiarlo rápido.")
         st.write("---")
     
     label_r = st.selectbox("Ver Repetidas de:", list(nombres_paises.values()), key="p_r")
