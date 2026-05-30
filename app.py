@@ -188,11 +188,10 @@ with tab3:
     st.write("Pegá la lista de códigos separados por comas, espacios o líneas enteras:")
     texto_bloque = st.text_area("Ejemplo: ARG13, BRA2, MEX5", height=150)
     
-    tipo_carga = r_button = st.radio("¿Qué querés hacer con estas figuritas?", ["Marcar todas como PEGADAS", "Sumar todas a las REPETIDAS"])
+    tipo_carga = st.radio("¿Qué querés hacer con estas figuritas?", ["Marcar todas como PEGADAS", "Sumar todas a las REPETIDAS"])
     
     if st.button("⚡ Procesar Todo el Bloque"):
         if texto_bloque:
-            # Buscar todos los códigos válidos en el texto pegado
             figus_encontradas = re.findall(r"\b([A-ZáéíóúÁÉÍÓÚ\s\-]+)(\d+)\b", texto_bloque.upper())
             
             exito_count = 0
@@ -250,7 +249,9 @@ with tab5:
             texto_repes += f"• {p_name}: {repes_str}\n"
             
     if hay_repes:
-        st.copy_button("📋 Copiar Repetidas para WhatsApp", texto_repes)
+        # Reemplazado por un visor de texto nativo más seguro para evitar errores de versión
+        st.text_area("📋 Lista lista para copiar y mandar a WhatsApp:", value=texto_repes, height=200)
+        st.write("👆 Mantené presionado el texto de arriba en el celu para seleccionarlo y copiarlo rápido.")
         st.write("---")
     
     label_r = st.selectbox("Ver Repetidas de:", list(nombres_paises.values()), key="p_r")
