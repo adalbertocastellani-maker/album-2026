@@ -8,10 +8,7 @@ st.set_page_config(page_title="Álbum Mundial 2026", page_icon="⚽", layout="ce
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
-    div.stButton > button:first-child {
-        background-color: #107c41; color: white; border-radius: 8px; font-weight: bold; width: 100%;
-    }
-    div.stButton > button:last-child {
+    div.stButton > button {
         border-radius: 8px; font-weight: bold; width: 100%;
     }
     </style>
@@ -127,7 +124,7 @@ with met2:
 st.write("---")
 
 # 3. PESTAÑAS PRINCIPALES
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🔍 Buscador", "➕ Cargar 1 a 1", "🚀 Carga por Bloque", "📋 Faltantes", "🔄 Repetidas"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🔍 Buscador", "📌 Registrar Cambios", "🚀 Carga por Bloque", "📋 Faltantes", "🔄 Repetidas"])
 
 with tab1:
     st.subheader("Consultar Figurita")
@@ -151,7 +148,7 @@ with tab1:
             st.warning("Poné las letras y los números juntos (Ej: MEX17).")
 
 with tab2:
-    st.subheader("Cargar Figus Manual")
+    st.subheader("Modificar Inventario (1 a 1)")
     col1, col2 = st.columns(2)
     with col1:
         seleccion_label = st.selectbox("Elegí el País/Sección:", list(nombres_paises.values()))
@@ -163,11 +160,16 @@ with tab2:
     elif pais_n == "FIFA History": code_n = f"FWC{num_n}"
     else: code_n = f"{pais_n}{num_n}"
     
-    st.write(f"Figurita seleccionada: **{nombres_paises[pais_n]} — Número {num_n}**")
+    str_num = str(num_n)
+    cant_actual_repe = st.session_state.repetidas.get(pais_n, {}).get(str_num, 0)
+    estado_album = "❌ FALTANTE" if code_n in st.session_state.faltantes.get(pais_n, []) else "✅ PEGADA"
     
+    st.info(f"Estado actual de **{code_n}**: Álbum: **{estado_album}** | Repetidas en stock: **{cant_actual_repe}**")
+    
+    st.write("🟢 **SI CONSEGUISTE ESTA FIGURITA:**")
     btn_pegar, btn_repe = st.columns(2)
     with btn_pegar:
-        if st.button("📌 ¡La pegamos en el álbum!", key="pegar_manual"):
+        if st.button("📌 Pegar en el Álbum", key="pegar_manual"):
             if code_n in st.session_state.faltantes.get(pais_n, []):
                 st.session_state.faltantes[pais_n].remove(code_n)
                 st.success(f"¡Buenísimo! {code_n} guardada en el álbum.")
@@ -176,12 +178,34 @@ with tab2:
                 st.info("Esa figurita ya figuraba como pegada.")
                 
     with btn_repe:
-        if st.button("🔄 Guardar en las Repetidas", key="repe_manual"):
-            str_num = str(num_n)
+        if st.button("➕ Sumar 1 a Repetidas", key="repe_manual"):
             if pais_n not in st.session_state.repetidas:
                 st.session_state.repetidas[pais_n] = {}
-            st.session_state.repetidas[pais_n][str_num] = st.session_state.repetidas[pais_n].get(str_num, 0) + 1
-            st.toast(f"¡Agregada {code_n} al mazo de cambios!", icon="🔄")
+            st.session_state.repetidas[pais_n][str_num] = cant_actual_repe + 1
+            st.success(f"¡Agregada 1 unidad de {code_n} a las repetidas!")
+            st.rerun()
+
+    st.write("🔴 **SI REGALASTE, CAMBIASTE O QUERÉS DESPEGAR:**")
+    btn_sacar_repe, btn_despegar = st.columns(2)
+    with btn_sacar_repe:
+        if st.button("➖ Descontar 1 de Repetidas", key="sacar_repe"):
+            if cant_actual_repe > 0:
+                st.session_state.repetidas[pais_n][str_num] = cant_actual_repe - 1
+                st.error(f"Se descontó 1 repetida de {code_n}. Quedan: {cant_actual_repe - 1}")
+                st.rerun()
+            else:
+                st.warning("No tenías repetidas de esta figurita para restar.")
+                
+    with btn_despegar:
+        if st.button("🗑️ Despegar (Vuelve a faltar)", key="despegar_figu"):
+            if code_n not in st.session_state.faltantes.get(pais_n, []):
+                st.session_state.faltantes[pais_n].append(code_n)
+                # Ordenar la lista para que quede prolija
+                st.session_state.faltantes[pais_n].sort(key=lambda x: int(re.search(r'\d+', x).group()))
+                st.error(f"{code_n} volvió a la lista de faltantes.")
+                st.rerun()
+            else:
+                st.info("Esta figurita ya estaba marcada como faltante.")
 
 with tab3:
     st.subheader("🚀 Carga o Consulta Masiva")
@@ -227,7 +251,6 @@ with tab3:
                         st.session_state.repetidas[p][n] = st.session_state.repetidas[p].get(n, 0) + 1
                         exito_count += 1
             
-            # Mostrar resultados según la opción elegida
             if "CONSULTAR" in tipo_carga:
                 st.write("---")
                 if servir:
@@ -239,7 +262,6 @@ with tab3:
                 if ya_estan:
                     st.info(f"✅ Esas ya las tenemos pegadas ({len(ya_estan)}):")
                     st.caption(", ".join(ya_estan))
-                    
             else:
                 if exito_count > 0:
                     st.success(f"¡Espectacular! Se procesaron con éxito **{exito_count}** figuritas.")
