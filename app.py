@@ -16,7 +16,7 @@ st.markdown("""
 
 st.title("⚽ Mi Álbum Interactivo 2026")
 
-# 1. BASE DE DATOS INICIAL CON EMÓJIS
+# 1. BASE DE DATOS INICIAL CON EMÓJIS (ACTUALIZADA CON LAS PÁGINAS COMPLETAS DE LAS FOTOS)
 @st.cache_data
 def inicializar_datos():
     nombres_paises = {
@@ -26,57 +26,71 @@ def inicializar_datos():
         "CIV": "🇨🇮 CIV (Costa de Marfil)", "COD": "🇨🇩 COD (Congo DR)", "COL": "🇨🇴 COL (Colombia)", "CRO": "🇭🇷 CRO (Croacia)",
         "CUW": "🇨🇼 CUW (Curazao)", "CZE": "🇨🇿 CZE (Rep. Checa)", "EGY": "🇪🇬 EGY (Egipto)", "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 ENG (Inglaterra)",
         "ESP": "🇪🇸 ESP (España)", "FIN": "🇫🇮 FIN (Finlandia)", "FRA": "🇫🇷 FRA (Francia)", "FWC": "🏆 FWC (Especiales)",
-        "GHA": "🇬🇭 GHA (Ghana)", "GPV": "🇨🇻 GPV (Guadalupe)", "HAI": "🇭🇹 HAI (Haití)", "IRQ": "🇮🇶 IRQ (Irak)",
-        "JOR": "🇯🇴 JOR (Jordania)", "JPN": "🇯🇵 JPN (Japón)", "KOR": "🇰🇷 KOR (Corea del Sur)", "MAR": "🇲🇦 MAR (Marruecos)",
-        "MEX": "🇲🇽 MEX (México)", "NED": "🇳🇱 NED (Países Bajos)", "NOR": "🇳🇴 NOR (Noruega)", "NZL": "🇳🇿 NZL (Nueva Zelanda)",
-        "PAN": "🇵🇦 PAN (Panamá)", "PAR": "🇵🇾 PAR (Paraguay)", "POR": "🇵🇹 POR (Portugal)", "QAT": "🇶🇦 QAT (Catar)",
-        "RSA": "🇿🇦 RSA (Sudáfrica)", "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 SCO (Escocia)", "SEN": "🇸🇳 SEN (Senegal)", "SUI": "🇨🇭 SUI (Suiza)",
-        "SWE": "🇸🇪 SWE (Suecia)", "TUN": "🇹🇳 TUN (Túnez)", "TUR": "🇹🇷 TUR (Turquía)", "USA": "🇺🇸 USA (EE.UU.)",
-        "UZB": "🇺🇿 UZB (Uzbekistán)"
+        "GHA": "🇬🇭 GHA (Ghana)", "GPV": "🇨🇻 GPV (Cabo Verde)", "HAI": "🇭🇹 HAI (Haití)", "IRQ": "🇮🇶 IRQ (Irak)",
+        "IRN": "🇮🇷 IRN (Irán)", "JOR": "🇯🇴 JOR (Jordania)", "JPN": "🇯🇵 JPN (Japón)", "KOR": "🇰🇷 KOR (Corea del Sur)", 
+        "MAR": "🇲🇦 MAR (Marruecos)", "MEX": "🇲🇽 MEX (México)", "NED": "🇳🇱 NED (Países Bajos)", "NOR": "🇳🇴 NOR (Noruega)", 
+        "NZL": "🇳🇿 NZL (Nueva Zelanda)", "PAN": "🇵🇦 PAN (Panamá)", "PAR": "🇵🇾 PAR (Paraguay)", "POR": "🇵🇹 POR (Portugal)", 
+        "QAT": "🇶🇦 QAT (Catar)", "RSA": "🇿🇦 RSA (Sudáfrica)", "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 SCO (Escocia)", "SEN": "🇸🇳 SEN (Senegal)", 
+        "SUI": "🇨🇭 SUI (Suiza)", "SWE": "🇸🇪 SWE (Suecia)", "TUN": "🇹🇳 TUN (Túnez)", "TUR": "🇹🇷 TUR (Turquía)", 
+        "USA": "🇺🇸 USA (EE.UU.)", "UZB": "🇺🇿 UZB (Uzbekistán)", "URU": "🇺🇾 URU (Uruguay)", "BEL": "🇧🇪 BEL (Bélgica)",
+        "ECU": "🇪🇨 ECU (Ecuador)", "GER": "🇩🇪 GER (Alemania)", "KSA": "🇸🇦 KSA (Arabia Saudita)"
     }
     
     paginas = {p: [f"CC{i}" if p=="Coca-Cola" else f"FWC{i}" if p=="FIFA History" else f"{p}{i}" for i in range(1, 21)] for p in nombres_paises.keys()}
     paginas["Coca-Cola"] = ["CC7", "CC10", "CC11", "CC12", "CC13"]
     paginas["FIFA History"] = ["FWC13", "FWC19"]
 
+    # Faltantes reales leídas minuciosamente de las fotos paso a paso
     faltantes = {
-        "Coca-Cola": ["CC7", "CC10", "CC11", "CC12", "CC13"], "FIFA History": ["FWC13", "FWC19"],
+        "Coca-Cola": ["CC7", "CC10", "CC11", "CC12", "CC13"], 
+        "FIFA History": ["FWC13", "FWC19"],
+        "ALG": ["ALG2", "ALG4", "ALG5", "ALG6", "ALG9", "ALG10", "ALG12", "ALG13", "ALG14", "ALG15", "ALG18"],
+        "ARG": ["ARG1", "ARG3", "ARG4", "ARG7", "ARG8", "ARG16", "ARG19", "ARG20"],
+        "AUS": ["AUS1", "AUS2", "AUS3", "AUS4", "AUS5", "AUS7", "AUS8", "AUS12", "AUS14", "AUS17"],
+        "AUT": ["AUT1", "AUT2", "AUT5", "AUT6", "AUT7", "AUT10", "AUT16", "AUT18", "AUT20"],
+        "BHN": ["BHN1", "BHN2", "BHN3", "BHN4", "BHN6", "BHN7", "BHN8", "BHN9", "BHN10", "BHN11", "BHN12", "BHN13", "BHN14", "BHN15", "BHN16", "BHN17", "BHN18", "BHN19", "BHN20"],
+        "BIH": ["BIH2", "BIH3", "BIH4", "BIH8", "BIH9", "BIH12", "BIH14", "BIH16", "BIH19", "BIH20"],
+        "BRA": ["BRA1", "BRA2", "BRA3", "BRA4", "BRA8", "BRA10", "BRA11", "BRA12", "BRA15", "BRA16", "BRA17", "BRA20"],
+        "CAN": ["CAN2", "CAN4", "CAN5", "CAN6", "CAN8", "CAN9", "CAN13", "CAN14", "CAN15", "CAN17", "CAN19"],
+        
+        # --- CARGAS NUEVAS DETECTADAS EN LAS FOTOS ---
+        "ESP": ["ESP2", "ESP3", "ESP4", "ESP5", "ESP6", "ESP8", "ESP9", "ESP10", "ESP12", "ESP13", "ESP17", "ESP18", "ESP20"],
+        "URU": ["URU1", "URU2", "URU3", "URU4", "URU5", "URU7", "URU8", "URU9", "URU10", "URU11", "URU15", "URU20"],
+        "GPV": ["GPV1", "GPV3", "GPV4", "GPV7", "GPV8", "GPV13", "GPV16", "GPV18", "GPV19"],
+        "IRN": ["IRN2", "IRN4", "IRN6", "IRN10", "IRN11", "IRN12", "IRN14", "IRN15", "IRN16", "IRN17", "IRN18", "IRN19", "IRN20"],
+        "BEL": ["BEL1", "BEL3", "BEL4", "BEL5", "BEL7", "BEL8", "BEL9", "BEL10", "BEL12", "BEL14", "BEL15", "BEL17", "BEL19", "BEL20"],
+        "ECU": ["ECU2", "ECU4", "ECU7", "ECU8", "ECU9", "ECU11", "ECU12", "ECU13", "ECU14", "ECU16", "ECU17", "ECU20"],
+        "GER": ["GER1", "GER2", "GER5", "GER6", "GER7", "GER8", "GER9", "GER10", "GER11", "GER12", "GER13", "GER16", "GER18", "GER19"],
+        "KSA": ["KSA2", "KSA3", "KSA4", "KSA6", "KSA8", "KSA10", "KSA11", "KSA15", "KSA16"],
+        # ---------------------------------------------
+        
         "PAN": ["PAN1", "PAN2", "PAN3", "PAN6", "PAN7", "PAN9", "PAN15", "PAN19"],
         "CRO": ["CRO5", "CRO6", "CRO8", "CRO10", "CRO12", "CRO15", "CRO16", "CRO17", "CRO18", "CRO19", "CRO20"],
         "GHA": ["GHA1", "GHA8", "GHA11", "GHA12", "GHA14", "GHA15", "GHA16", "GHA17", "GHA18"],
         "ENG": ["ENG1", "ENG2", "ENG5", "ENG8", "ENG9", "ENG10", "ENG14", "ENG15", "ENG19"],
-        "UZB": ["UZB1", "UZB8", "UZB10", "UZB14", "UZB16", "UZB18"], "COL": ["COL1", "COL4", "COL8", "COL12", "COL16", "COL17", "COL18"],
-        "COD": ["COD7", "COD8", "COD13"], "POR": ["POR1", "POR2", "POR7", "POR13", "POR14", "POR15", "POR19", "POR20"],
+        "UZB": ["UZB1", "UZB8", "UZB10", "UZB14", "UZB16", "UZB18"], 
+        "COL": ["COL1", "COL4", "COL8", "COL12", "COL16", "COL17", "COL18"],
+        "COD": ["COD7", "COD8", "COD13"], 
+        "POR": ["POR1", "POR2", "POR7", "POR13", "POR14", "POR15", "POR19", "POR20"],
         "JOR": ["JOR1", "JOR2", "JOR3", "JOR6", "JOR7", "JOR10", "JOR11", "JOR15", "JOR16", "JOR18", "JOR19"],
-        "AUT": ["AUT1", "AUT2", "AUT5", "AUT6", "AUT7", "AUT10", "AUT16", "AUT18", "AUT20"],
-        "ARG": ["ARG1", "ARG3", "ARG4", "ARG7", "ARG8", "ARG16", "ARG19", "ARG20"],
-        "ALG": ["ALG2", "ALG4", "ALG5", "ALG6", "ALG9", "ALG10", "ALG12", "ALG13", "ALG14", "ALG15", "ALG18"],
         "NOR": ["NOR1", "NOR2", "NOR3", "NOR4", "NOR6", "NOR7", "NOR8", "NOR9", "NOR11", "NOR12", "NOR14", "NOR15", "NOR16", "NOR17", "NOR18", "NOR19", "NOR20"],
-        "IRQ": ["IRQ1", "IRQ2", "IRQ4", "IRQ6", "IRQ12", "IRQ17", "IRQ18"], "SEN": ["SEN2", "SEN4", "SEN8", "SEN12", "SEN13", "SEN14", "SEN16"],
-        "FRA": ["FRA4", "FRA9", "FRA11", "FRA16", "FRA20"], "MAR": ["MAR1", "MAR2", "MAR8", "MAR10", "MAR12", "MAR16", "MAR19"],
+        "IRQ": ["IRQ1", "IRQ2", "IRQ4", "IRQ6", "IRQ12", "IRQ17", "IRQ18"], 
+        "SEN": ["SEN2", "SEN4", "SEN8", "SEN12", "SEN13", "SEN14", "SEN16"],
+        "FRA": ["FRA4", "FRA9", "FRA11", "FRA16", "FRA20"], 
+        "MAR": ["MAR1", "MAR2", "MAR8", "MAR10", "MAR12", "MAR16", "MAR19"],
         "SWE": ["SWE1", "SWE2", "SWE3", "SWE4", "SWE5", "SWE7", "SWE8", "SWE9", "SWE10", "SWE11", "SWE13", "SWE14", "SWE15", "SWE16", "SWE18", "SWE19", "SWE20"],
         "CZE": ["CZE5", "CZE6", "CZE8", "CZE11", "CZE14", "CZE16"],
         "EGY": ["EGY1", "EGY2", "EGY3", "EGY4", "EGY5", "EGY6", "EGY7", "EGY8", "EGY9", "EGY10", "EGY11", "EGY12", "EGY14", "EGY15", "EGY16", "EGY17", "EGY18", "EGY19", "EGY20"],
         "TUR": ["TUR6", "TUR10", "TUR14", "TUR19"],
         "TUN": ["TUN1", "TUN2", "TUN3", "TUN4", "TUN5", "TUN6", "TUN7", "TUN8", "TUN9", "TUN11", "TUN12", "TUN13", "TUN15", "TUN16", "TUN17", "TUN18", "TUN19", "TUN20"],
-        "BHN": ["BHN1", "BHN2", "BHN3", "BHN4", "BHN6", "BHN7", "BHN8", "BHN9", "BHN10", "BHN11", "BHN12", "BHN13", "BHN14", "BHN15", "BHN16", "BHN17", "BHN18", "BHN19", "BHN20"],
-        "GPV": ["GPV1", "GPV2", "GPV3", "GPV4", "GPV5", "GPV6", "GPV7", "GPV9", "GPV10", "GPV11", "GPV12", "GPV13", "GPV14", "GPV15", "GPV16", "GPV17", "GPV18", "GPV19", "GPV20"],
         "CIV": ["CIV3", "CIV10", "CIV11", "CIV12", "CIV13", "CIV15", "CIV18", "CIV19", "CIV20"],
         "JPN": ["JPN1", "JPN2", "JPN3", "JPN5", "JPN6", "JPN7", "JPN8", "JPN10", "JPN11", "JPN12", "JPN13", "JPN15", "JPN16", "JPN17", "JPN18", "JPN19", "JPN20"],
         "NED": ["NED1", "NED3", "NED7", "NED14", "NED16", "NED17", "NED18", "NED19"],
-        "ECU": ["ECU2", "ECU4", "ECU7", "ECU8", "ECU9", "ECU11", "ECU12", "ECU13", "ECU14", "ECU16", "ECU17", "ECU20"],
         "CUW": ["CUW1", "CUW3", "CUW5", "CUW7", "CUW9", "CUW10", "CUW13", "CUW16", "CUW19", "CUW20"],
-        "GER": ["GER1", "GER2", "GER5", "GER6", "GER7", "GER8", "GER9", "GER10", "GER11", "GER12", "GER13", "GER16", "GER18", "GER19"],
-        "AUS": ["AUS1", "AUS2", "AUS3", "AUS4", "AUS5", "AUS7", "AUS8", "AUS12", "AUS14", "AUS17"],
         "PAR": ["PAR4", "PAR6", "PAR7", "PAR10", "PAR11", "PAR14", "PAR17", "PAR18", "PAR19"],
         "MEX": ["MEX2", "MEX3", "MEX5", "MEX6", "MEX7", "MEX9", "MEX10", "MEX11", "MEX12", "MEX13", "MEX20"],
         "RSA": ["RSA3", "RSA4", "RSA6", "RSA9", "RSA10", "RSA12", "RSA14", "RSA17", "RSA18"],
         "KOR": ["KOR1", "KOR2", "KOR4", "KOR5", "KOR6", "KOR7", "KOR8", "KOR12", "KOR14", "KOR17", "KOR19"],
-        "CAN": ["CAN2", "CAN4", "CAN5", "CAN6", "CAN8", "CAN9", "CAN13", "CAN14", "CAN15", "CAN17", "CAN19"],
-        "BIH": ["BIH2", "BIH3", "BIH4", "BIH8", "BIH9", "BIH12", "BIH14", "BIH16", "BIH19", "BIH20"],
-        "QAT": ["QAT4", "QAT5", "QAT8", "QAT9", "QAT10", "QAT11", "QAT13", "QAT15", "QAT19", "QAT20"],
-        "SUI": ["SUI2", "SUI6", "SUI8", "SUI10", "SUI11", "SUI15", "SUI16"],
-        "BRA": ["BRA1", "BRA2", "BRA3", "BRA4", "BRA8", "BRA10", "BRA11", "BRA12", "BRA15", "BRA16", "BRA17", "BRA20"],
         "HAI": ["HAI2", "HAI6", "HAI7", "HAI8", "HAI11", "HAI16", "HAI18", "HAI20"],
         "SCO": ["SCO2", "SCO4", "SCO8", "SCO9", "SCO10", "SCO11", "SCO13", "SCO14", "SCO15", "SCO16", "SCO17", "SCO19", "SCO20"],
         "USA": ["USA2", "USA5", "USA14", "USA15"]
@@ -200,7 +214,6 @@ with tab2:
         if st.button("🗑️ Despegar (Vuelve a faltar)", key="despegar_figu"):
             if code_n not in st.session_state.faltantes.get(pais_n, []):
                 st.session_state.faltantes[pais_n].append(code_n)
-                # Ordenar la lista para que quede prolija
                 st.session_state.faltantes[pais_n].sort(key=lambda x: int(re.search(r'\d+', x).group()))
                 st.error(f"{code_n} volvió a la lista de faltantes.")
                 st.rerun()
